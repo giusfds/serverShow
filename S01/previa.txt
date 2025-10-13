@@ -1,0 +1,26 @@
+A ideia do trabalho é desenvolver uma aplicação de chat em rede feita em Java, onde várias pessoas 
+podem conversar entre si por meio de um servidor central. O cliente vai ter uma interface gráfica 
+feita com Java Swing, mostrando as mensagens trocadas em tempo real. A aplicação vai usar tanto TCP 
+quanto UDP: o TCP para a troca de mensagens principais (onde é importante garantir que tudo chegue 
+corretamente) e o UDP para informações mais rápidas, como avisos de status ou notificações de presença. 
+Além disso, o programa vai ser multithreaded, o que permite que o servidor atenda vários clientes ao 
+mesmo tempo e o cliente continue funcionando sem travar enquanto se comunica com a rede.
+
+O TCP vai ser usado porque ele garante que as mensagens cheguem completas e na ordem certa, o que é 
+essencial para manter uma conversa coerente. Em um chat, não dá pra ter mensagens chegando pela metade 
+ou fora de sequência, então o TCP é a melhor escolha. Ele cuida de tudo isso automaticamente — confirma 
+o recebimento dos dados, retransmite se algo se perder e evita congestionamentos — garantindo uma 
+comunicação estável e confiável entre cliente e servidor.
+
+Já o UDP entra nas partes em que a velocidade é mais importante do que a confiabilidade. Ele é ideal 
+para enviar pequenas informações, como “usuário digitando…” ou mensagens de presença, porque essas 
+atualizações acontecem o tempo todo e não precisam ser confirmadas. Se uma ou outra se perder, não 
+faz tanta diferença, já que novas atualizações logo são enviadas. Isso deixa a aplicação mais leve e 
+rápida, sem sobrecarregar o servidor com verificações desnecessárias.
+
+Pra deixar os códigos de TCP e UDP apresentados em aula multithreaded, é preciso criar threads separadas 
+para lidar com as conexões e o recebimento de mensagens. No servidor TCP, cada cliente conectado pode 
+ter uma thread própria, pra que um não bloqueie o outro. No cliente, outra thread pode cuidar de 
+receber mensagens do servidor, enquanto a interface Swing continua respondendo normalmente. No caso 
+do UDP, o envio e o recebimento de datagramas também podem rodar em threads diferentes, garantindo 
+que tudo aconteça ao mesmo tempo e que a aplicação continue fluindo bem.
