@@ -1,6 +1,6 @@
 **Título do Artigo:** **NETWORK LAYER: ITS ARCHITECTURE, SURVEY AND NETWORK SYSTEM**
 
-**Publicação:** Publicado em anais de conferência (frequentemente indexado pelo IEEE ou ACM) e 
+**Publicação:** Publicado em canais de conferência (frequentemente indexado pelo IEEE ou ACM) e 
 disponível no ResearchGate.
 
 **Ano:** 2022 (dentro do requisito dos últimos três anos).
