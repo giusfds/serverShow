@@ -1,11 +1,8 @@
 # Sistema de Processamento Distribuído
 
-<div style="text-align: center">
-
-  [![Java](https://img.shields.io/badge/Java-8+-orange.svg)](https://www.java.com)
-  [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-  [![Network](https://img.shields.io/badge/Network-TCP%2FUDP-green.svg)]()
-</div>
+[![Java](https://img.shields.io/badge/Java-8+-orange.svg)](https://www.java.com)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Network](https://img.shields.io/badge/Network-TCP%2FUDP-green.svg)]()
 
 ## Sobre o Projeto
 
