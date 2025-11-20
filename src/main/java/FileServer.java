@@ -3,14 +3,18 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
-import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * Servidor de Processamento Distribuído
+ * Processa tarefas computacionais usando TCP e envia métricas via UDP
+ */
 public class FileServer extends JFrame {
+    // UI Components - Old FileServer variables
     private JButton startBtn, stopBtn, chooseDirBtn;
     private JList<String> fileList;
     private DefaultListModel<String> listModel;
@@ -18,13 +22,14 @@ public class FileServer extends JFrame {
     private JLabel statusLabel;
     private JFileChooser dirChooser;
     private File saveDir = new File(".");
+
+    // Network Components
     private ServerSocket serverSocket;
     private ExecutorService pool = Executors.newCachedThreadPool();
     private volatile boolean running = false;
     private final int port = 5000;
 
-    // Credenciais
-
+    // Configuration
     private static final String AUTH_KEY = Config.get("auth.key");
     private static final String PASSWORD_HASH = sha256(Config.get("password"));
 
@@ -91,16 +96,14 @@ public class FileServer extends JFrame {
         pool.submit(() -> {
             try {
                 serverSocket = new ServerSocket(port);
-                SwingUtilities.invokeLater(() ->
-                        statusLabel.setText("Servidor ouvindo na porta " + port));
+                SwingUtilities.invokeLater(() -> statusLabel.setText("Servidor ouvindo na porta " + port));
                 while (running) {
                     Socket client = serverSocket.accept();
                     pool.submit(() -> handleClient(client));
                 }
             } catch (IOException ex) {
                 if (running) {
-                    SwingUtilities.invokeLater(() ->
-                            statusLabel.setText("Erro no servidor: " + ex.getMessage()));
+                    SwingUtilities.invokeLater(() -> statusLabel.setText("Erro no servidor: " + ex.getMessage()));
                 }
             } finally {
                 stopServerCleanup();
@@ -114,8 +117,10 @@ public class FileServer extends JFrame {
         stopBtn.setEnabled(false);
         statusLabel.setText("Parando servidor...");
         try {
-            if (serverSocket != null && !serverSocket.isClosed()) serverSocket.close();
-        } catch (IOException ignored) {}
+            if (serverSocket != null && !serverSocket.isClosed())
+                serverSocket.close();
+        } catch (IOException ignored) {
+        }
     }
 
     private void stopServerCleanup() {
@@ -133,8 +138,7 @@ public class FileServer extends JFrame {
             String key = in.readUTF();
             String password = in.readUTF();
             if (!AUTH_KEY.equals(key) || !PASSWORD_HASH.equals(sha256(password))) {
-                SwingUtilities.invokeLater(() ->
-                        statusLabel.setText("Autenticação falhou para " + peer));
+                SwingUtilities.invokeLater(() -> statusLabel.setText("Autenticação falhou para " + peer));
                 socket.close();
                 return;
             }
@@ -161,7 +165,8 @@ public class FileServer extends JFrame {
                     totalRead += read;
                     int percent = (int) ((totalRead * 100) / fileSize);
                     SwingUtilities.invokeLater(() -> progressBar.setValue(percent));
-                    if (totalRead >= fileSize) break;
+                    if (totalRead >= fileSize)
+                        break;
                 }
             }
 
@@ -175,13 +180,14 @@ public class FileServer extends JFrame {
             });
 
         } catch (IOException ex) {
-            SwingUtilities.invokeLater(() ->
-                    statusLabel.setText("Erro recebendo arquivo: " + ex.getMessage()));
+            SwingUtilities.invokeLater(() -> statusLabel.setText("Erro recebendo arquivo: " + ex.getMessage()));
         } finally {
-            try { socket.close(); } catch (IOException ignored) {}
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+            }
             ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-            ses.schedule(() ->
-                    SwingUtilities.invokeLater(() -> progressBar.setValue(0)), 800, TimeUnit.MILLISECONDS);
+            ses.schedule(() -> SwingUtilities.invokeLater(() -> progressBar.setValue(0)), 800, TimeUnit.MILLISECONDS);
             ses.shutdown();
         }
     }
@@ -196,7 +202,8 @@ public class FileServer extends JFrame {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(input.getBytes());
             StringBuilder sb = new StringBuilder();
-            for (byte b : hash) sb.append(String.format("%02x", b));
+            for (byte b : hash)
+                sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);

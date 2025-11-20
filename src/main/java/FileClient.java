@@ -91,8 +91,8 @@ public class FileClient extends JFrame {
             @Override
             protected Void doInBackground() {
                 try (Socket socket = new Socket(host, port);
-                     DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-                     InputStream fileIn = new BufferedInputStream(new FileInputStream(f))) {
+                        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                        InputStream fileIn = new BufferedInputStream(new FileInputStream(f))) {
 
                     // 🔐 Envia credenciais
                     out.writeUTF(AUTH_KEY);
@@ -115,9 +115,8 @@ public class FileClient extends JFrame {
                     out.flush();
 
                 } catch (IOException ex) {
-                    SwingUtilities.invokeLater(() ->
-                            JOptionPane.showMessageDialog(FileClient.this, "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE)
-                    );
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(FileClient.this,
+                            "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE));
                 }
                 return null;
             }
