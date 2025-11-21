@@ -218,7 +218,13 @@ public class ProcessingServer extends JFrame {
     }
 
     private void startUdpServer() {
-        udpPort = Integer.parseInt(udpPortField.getText().trim());
+        // Pega a porta do campo de texto (caso o usuário tenha mudado manualmente)
+        try {
+            udpPort = Integer.parseInt(udpPortField.getText().trim());
+        } catch (NumberFormatException e) {
+            udpPort = Config.getUdpPort(); // Fallback para o Config se o texto for inválido
+        }
+        
         udpRunning = true;
         startUdpBtn.setEnabled(false);
         stopUdpBtn.setEnabled(true);
@@ -238,6 +244,24 @@ public class ProcessingServer extends JFrame {
                 while (udpRunning) {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     udpSocket.receive(packet);
+
+                    
+                    int lossPercentage = Config.getPacketLoss();
+                    if (lossPercentage > 0) {
+                        if (new java.util.Random().nextInt(100) < lossPercentage) {
+
+                            log("⚠️ Pacote UDP descartado (Simulação de Roteador Ruim)");
+                            continue;
+                        }
+                    }
+
+                    int latency = Config.getLatency();
+                    if (latency > 0) {
+                        try {
+                            Thread.sleep(latency);
+                        } catch (InterruptedException e) {
+                        }
+                    }
 
                     String request = new String(packet.getData(), 0, packet.getLength());
                     log("Requisição UDP recebida: " + request);
@@ -277,6 +301,17 @@ public class ProcessingServer extends JFrame {
     }
 
     private void handleTcpClient(Socket socket) {
+
+        int latency = Config.getLatency(); // Pega o valor do slider
+        if (latency > 0) {
+            try {
+                // Simula o atraso da rede (Ping alto)
+                Thread.sleep(latency);
+            } catch (InterruptedException e) {
+                log("Simulação de latência interrompida.");
+            }
+        }
+
         activeThreads.incrementAndGet();
         String peer = socket.getRemoteSocketAddress().toString();
 

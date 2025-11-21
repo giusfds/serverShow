@@ -21,29 +21,32 @@ public class Main extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Título
         JLabel titleLabel = new JLabel("Sistema de Processamento Distribuído", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // Painel de botões
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
-        
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+
         JButton serverBtn = new JButton("1. Executar Servidor (ProcessingServer)");
         JButton clientBtn = new JButton("2. Executar Cliente (ProcessingClient)");
         JButton bothBtn = new JButton("3. Executar Ambos (Servidor + Cliente)");
-        JButton exitBtn = new JButton("4. Sair");
+        
+        JButton configBtn = new JButton("4. Configurações de Rede / Roteador");
+        
+        JButton exitBtn = new JButton("5. Sair");
 
         // Estilizar botões
         Font buttonFont = new Font("Arial", Font.PLAIN, 14);
         serverBtn.setFont(buttonFont);
         clientBtn.setFont(buttonFont);
         bothBtn.setFont(buttonFont);
+        configBtn.setFont(buttonFont);
         exitBtn.setFont(buttonFont);
 
         serverBtn.setFocusPainted(false);
         clientBtn.setFocusPainted(false);
         bothBtn.setFocusPainted(false);
+        configBtn.setFocusPainted(false);
         exitBtn.setFocusPainted(false);
 
         // Cores
@@ -53,6 +56,10 @@ public class Main extends JFrame {
         clientBtn.setForeground(Color.BLACK);
         bothBtn.setBackground(new Color(156, 39, 176));
         bothBtn.setForeground(Color.BLACK);
+        
+        configBtn.setBackground(new Color(255, 152, 0));
+        configBtn.setForeground(Color.BLACK);
+        
         exitBtn.setBackground(new Color(244, 67, 54));
         exitBtn.setForeground(Color.BLACK);
 
@@ -60,17 +67,21 @@ public class Main extends JFrame {
         serverBtn.addActionListener(e -> executeServer());
         clientBtn.addActionListener(e -> executeClient());
         bothBtn.addActionListener(e -> executeBoth());
+        
+        configBtn.addActionListener(e -> openConfig());
+        
         exitBtn.addActionListener(e -> System.exit(0));
 
         // Teclas de atalho
         serverBtn.setMnemonic(KeyEvent.VK_1);
         clientBtn.setMnemonic(KeyEvent.VK_2);
         bothBtn.setMnemonic(KeyEvent.VK_3);
-        exitBtn.setMnemonic(KeyEvent.VK_4);
+        exitBtn.setMnemonic(KeyEvent.VK_5);
 
         buttonPanel.add(serverBtn);
         buttonPanel.add(clientBtn);
         buttonPanel.add(bothBtn);
+        buttonPanel.add(configBtn);
         buttonPanel.add(exitBtn);
 
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -146,6 +157,13 @@ public class Main extends JFrame {
 
             this.dispose();
         }
+    }
+
+    private void openConfig() {
+        SwingUtilities.invokeLater(() -> {
+            ConfigDialog dialog = new ConfigDialog(this);
+            dialog.setVisible(true);
+        });
     }
 
     public static void main(String[] args) {

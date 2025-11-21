@@ -267,11 +267,14 @@ public class ProcessingClient extends JFrame {
     }
 
     private void connect() {
-        serverHost = hostField.getText().trim();
-        tcpPort = Integer.parseInt(tcpPortField.getText().trim());
-        udpPort = Integer.parseInt(udpPortField.getText().trim());
+        serverHost = Config.getIp();
+        tcpPort = Config.getTcpPort();
+        udpPort = Config.getUdpPort();
 
-        // Test connection
+        hostField.setText(serverHost);
+        tcpPortField.setText(String.valueOf(tcpPort));
+        udpPortField.setText(String.valueOf(udpPort));
+
         new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() {
@@ -292,15 +295,18 @@ public class ProcessingClient extends JFrame {
                         disconnectBtn.setEnabled(true);
                         monitorBtn.setEnabled(true);
                         executeBtn.setEnabled(true);
+                        
                         hostField.setEnabled(false);
                         tcpPortField.setEnabled(false);
                         udpPortField.setEnabled(false);
+                        
                         statusLabel.setText("Conectado ao servidor em " + serverHost + ":" + tcpPort);
                         logResult("✓ Conexão estabelecida com sucesso!");
                     } else {
                         statusLabel.setText("Falha ao conectar. Verifique o endereço e porta.");
                         JOptionPane.showMessageDialog(ProcessingClient.this,
-                                "Não foi possível conectar ao servidor.\nVerifique se o servidor está ativo.",
+                                "Não foi possível conectar ao servidor " + serverHost + ":" + tcpPort + 
+                                "\nVerifique se o servidor está ativo e se o IP na Configuração está correto.",
                                 "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception e) {
