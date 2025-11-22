@@ -28,7 +28,7 @@ echo -e "${BLUE}Compilando código Java...${NC}"
 javac -d bin src/main/java/*.java
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Compilação concluída com sucesso!${NC}"
+    echo -e "${GREEN}Compilação concluída com sucesso!${NC}"
     echo ""
     
     # Copia config.properties para bin
@@ -36,7 +36,7 @@ if [ $? -eq 0 ]; then
     
     echo -e "${GREEN}Iniciando Menu Principal...${NC}"
     cd bin
-    java gui.Main
+    java Main
 else
     echo -e "${RED}✗ Erro na compilação${NC}"
     exit 1
