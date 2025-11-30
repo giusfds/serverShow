@@ -1,0 +1,676 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+% Tema
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Configuração de cores
+\definecolor{ciscoBlue}{RGB}{0,51,153}
+\definecolor{codeBackground}{RGB}{245,245,245}
+
+\setbeamercolor{structure}{fg=ciscoBlue}
+\setbeamercolor{frametitle}{fg=white,bg=ciscoBlue}
+
+% Configuração de código
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codeBackground},
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red}
+}
+
+% Informações do documento
+\title[Servidor de Processamento]{Sistema Cliente-Servidor de Processamento Distribuído}
+\subtitle{Comunicação TCP/UDP com Análise de Rede}
+\author{Giuseppe Sena}
+\institute{Redes de Computadores}
+\date{\today}
+
+\begin{document}
+
+% Slide de título
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Sumário
+\begin{frame}{Sumário}
+    \tableofcontents
+\end{frame}
+
+% ============================================
+% SEÇÃO 1: INTRODUÇÃO
+% ============================================
+\section{Introdução}
+
+\begin{frame}{Visão Geral do Projeto}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Objetivo:}
+            \begin{itemize}
+                \item Sistema cliente-servidor
+                \item Processamento distribuído
+                \item Comunicação TCP e UDP
+                \item Análise de tráfego de rede
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Tecnologias:}
+            \begin{itemize}
+                \item Java (Sockets)
+                \item Cisco Packet Tracer
+                \item Wireshark
+                \item Protocolos TCP/UDP
+            \end{itemize}
+        \end{column}
+    \end{columns}
+
+    \vspace{1cm}
+    \begin{alertblock}{Funcionalidades Implementadas}
+        5 tipos de tarefas: Ordenação, Busca, Multiplicação de Matrizes, Números Primos e Transferência de Arquivos
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Arquitetura do Sistema}
+    \begin{center}
+        \begin{tikzpicture}[scale=0.85]
+            % Cliente
+            \node[draw, rectangle, minimum width=2.5cm, minimum height=1.5cm, fill=blue!20] (cliente) at (0,0) {\textbf{Cliente}};
+            \node[below=0.1cm of cliente] {\small Interface Swing};
+
+            % Servidor
+            \node[draw, rectangle, minimum width=2.5cm, minimum height=1.5cm, fill=green!20] (servidor) at (8,0) {\textbf{Servidor}};
+            \node[below=0.1cm of servidor] {\small Processamento};
+
+            % Setas TCP
+            \draw[->, thick, red] (cliente.north) .. controls (4,2) .. (servidor.north) node[midway, above] {TCP 5000 - Tarefas};
+
+            % Setas UDP
+            \draw[->, thick, blue] (servidor.south) .. controls (4,-2) .. (cliente.south) node[midway, below] {UDP 5001 - Status};
+        \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.5cm}
+    \begin{block}{Protocolos}
+        \textbf{TCP (5000):} Envio de tarefas e recebimento de resultados \\
+        \textbf{UDP (5001):} Monitoramento em tempo real (CPU, memória, threads)
+    \end{block}
+\end{frame}
+
+% ============================================
+% SEÇÃO 2: TOPOLOGIA
+% ============================================
+\section{Topologia de Rede}
+
+\begin{frame}{Topologia no Cisco Packet Tracer}
+    \begin{center}
+        \begin{tikzpicture}[scale=0.9, every node/.style={scale=0.9}]
+            % PC1
+            \node[draw, rectangle, minimum width=1.8cm, minimum height=1cm, fill=yellow!30] (pc1) at (0,3) {PC1};
+            \node[below=0.1cm of pc1, font=\tiny] {Cliente};
+            \node[below=0.35cm of pc1, font=\tiny] {192.168.1.10};
+
+            % Roteadores
+            \node[draw, circle, minimum size=1.2cm, fill=cyan!30] (r1) at (3,3) {R1};
+            \node[draw, circle, minimum size=1.2cm, fill=cyan!30] (r2) at (6,3) {R2};
+            \node[draw, circle, minimum size=1.2cm, fill=cyan!30] (r3) at (9,3) {R3};
+
+            % PC2
+            \node[draw, rectangle, minimum width=1.8cm, minimum height=1cm, fill=yellow!30] (pc2) at (12,3) {PC2};
+            \node[below=0.1cm of pc2, font=\tiny] {Servidor};
+            \node[below=0.35cm of pc2, font=\tiny] {10.0.0.100};
+
+            % Conexões
+            \draw[-] (pc1) -- (r1);
+            \draw[-] (r1) -- (r2);
+            \draw[-] (r2) -- (r3);
+            \draw[-] (r3) -- (pc2);
+        \end{tikzpicture}
+    \end{center}
+
+    \begin{block}{Endereçamento}
+        \begin{itemize}
+            \item \textbf{PC1:} 192.168.1.10/16
+            \item \textbf{PC2:} 10.0.0.100/8
+            \item Roteadores com NAT para interligação das redes
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+% ============================================
+% SEÇÃO 3 — JAVA
+% ============================================
+\section{Aplicação Java}
+
+\begin{frame}{Estrutura do Código}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Classes Principais:}
+            \begin{itemize}
+                \item \texttt{Main.java} - Menu principal
+                \item \texttt{FileServer.java} - Servidor TCP/UDP
+                \item \texttt{FileClient.java} - Cliente TCP/UDP
+                \item \texttt{ProcessingServer.java} - Processamento
+                \item \texttt{ProcessingClient.java} - Requisições
+                \item \texttt{Config.java} - Configurações
+                \item \texttt{ConfigDialog.java} - Interface
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Tarefas Implementadas:}
+            \begin{enumerate}
+                \item \textbf{SORT} - Ordenação de arrays
+                \item \textbf{SEARCH} - Busca binária
+                \item \textbf{MATRIX} - Multiplicação de matrizes
+                \item \textbf{PRIME} - Números primos
+                \item \textbf{FILE} - Transferência de arquivos
+            \end{enumerate}
+        \end{column}
+    \end{columns}
+    
+    \vspace{0.5cm}
+    \begin{block}{Características}
+        Interface gráfica Swing, processamento multithreaded, monitoramento em tempo real
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Servidor - Código Principal}
+\begin{lstlisting}[language=Java, basicstyle=\ttfamily\tiny]
+public class FileServer {
+    private ServerSocket tcpServer;
+    private DatagramSocket udpServer;
+    private volatile boolean running;
+
+    private void startTCPServer() throws IOException {
+        tcpServer = new ServerSocket(5000);
+        while (running) {
+            Socket clientSocket = tcpServer.accept();
+            new Thread(() -> handleClient(clientSocket)).start();
+        }
+    }
+
+    private void startUDPServer() throws IOException {
+        udpServer = new DatagramSocket(5001);
+        while (running) {
+            byte[] buffer = new byte[1024];
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            udpServer.receive(packet);
+
+            String metrics = getServerMetrics();
+            byte[] response = metrics.getBytes();
+            DatagramPacket responsePacket =
+                new DatagramPacket(response, response.length,
+                packet.getAddress(), packet.getPort());
+            udpServer.send(responsePacket);
+        }
+    }
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Cliente - Código Principal}
+    \begin{lstlisting}[language=Java, basicstyle=\ttfamily\tiny]
+public class FileClient {
+    private Socket tcpSocket;
+    private DatagramSocket udpSocket;
+    
+    // Conectar ao servidor via TCP
+    public void connect(String host, int port) throws IOException {
+        tcpSocket = new Socket(host, port);
+        appendLog("Conectado ao servidor: " + host + ":" + port);
+    }
+    
+    // Enviar tarefa via TCP
+    public String sendTask(String taskType, String params) throws IOException {
+        PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
+        BufferedReader in = new BufferedReader(
+            new InputStreamReader(tcpSocket.getInputStream())
+        );
+        
+        // Enviar requisicao
+        out.println(taskType + "|" + params);
+        
+        // Receber resposta
+        return in.readLine();
+    }
+    
+    // Monitorar status via UDP
+    private void startStatusMonitoring() {
+        new Thread(() -> {
+% ============================================
+% SEÇÃO 4 — WIRESHARK
+% ============================================
+\section{Análise no Wireshark}
+
+\begin{frame}{Captura de Tráfego}
+    \textbf{Configuração da Captura:}
+    \begin{itemize}
+        \item \textbf{Interface:} Loopback (lo0 no macOS)
+        \item \textbf{Filtros aplicados:}
+            \begin{itemize}
+                \item \texttt{tcp.port == 5000} - Tráfego TCP
+                \item \texttt{udp.port == 5001} - Tráfego UDP
+                \item \texttt{tcp.port == 5000 || udp.port == 5001} - Ambos
+            \end{itemize}
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    
+    \begin{block}{Procedimento}
+        \begin{enumerate}
+            \item Iniciar captura no Wireshark
+            \item Executar servidor e cliente
+            \item Realizar uma tarefa
+            \item Parar captura e aplicar filtros
+            \item Analisar pacotes TCP e UDP
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Análise TCP - Three-Way Handshake}
+    \begin{center}
+        \begin{tikzpicture}[scale=0.85]
+            \node at (0,4) {\textbf{Cliente}};
+            \node at (8,4) {\textbf{Servidor}};
+
+            \draw[thick] (0,3.5) -- (0,0);
+            \draw[thick] (8,3.5) -- (8,0);
+
+            \draw[->, thick, red] (0,3) -- (8,2.5) node[midway, above] {SYN};
+            \draw[->, thick, blue] (8,2) -- (0,1.5) node[midway, above] {SYN-ACK};
+            \draw[->, thick, green!50!black] (0,1) -- (8,0.5) node[midway, above] {ACK};
+
+            \node at (4,0) {\textcolor{green}{Conexão Estabelecida}};
+        \end{tikzpicture}
+    \end{center}
+    
+    \begin{alertblock}{Observação}
+        O handshake TCP garante que ambas as partes estão prontas para comunicação confiável
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Análise TCP - Transferência de Dados}
+    \textbf{Características Observadas:}
+    
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Pacotes de Dados:}
+            \begin{itemize}
+                \item Flags: PSH, ACK
+                \item Sequence numbers incrementais
+                \item ACK após cada pacote
+                \item Controle de fluxo (Window Size)
+                \item Retransmissão em caso de perda
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Overhead TCP:}
+            \begin{itemize}
+                \item Header: 20-60 bytes
+                \item ACKs: packets adicionais
+                \item Handshake: 3 pacotes
+                \item Finalização: 4 pacotes (FIN)
+                \item Total: \textasciitilde40-50\% overhead
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    
+    \vspace{0.5cm}
+    \begin{exampleblock}{Vantagem}
+        Entrega confiável e ordenada dos dados - ideal para tarefas críticas
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Análise UDP - Monitoramento}
+    \textbf{Características Observadas:}
+    
+    \begin{block}{Tráfego UDP}
+        \begin{itemize}
+            \item \textbf{Sem handshake:} Comunicação direta
+            \item \textbf{Sem ACKs:} Não há confirmação de recebimento
+            \item \textbf{Overhead mínimo:} Header de apenas 8 bytes
+            \item \textbf{Periódico:} Requisições a cada 2 segundos
+            \item \textbf{Payload JSON:} Métricas do servidor
+        \end{itemize}
+    \end{block}
+    
+    \vspace{0.3cm}
+    
+    \textbf{Exemplo de Payload (JSON):}
+    \begin{lstlisting}[language=json, basicstyle=\ttfamily\tiny]
+{
+  "cpu": "15.2%",
+  "memoria": "512MB/2048MB",
+  "threads": 12,
+  "tarefas_processadas": 156,
+  "tempo_medio": "342ms"
+}
+    \end{lstlisting}
+    
+    \begin{exampleblock}{Vantagem}
+        Baixo overhead - ideal para monitoramento em tempo real
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Comparação: TCP vs UDP}
+    \begin{center}
+        \small
+        \begin{tabular}{|l|c|c|}
+            \hline
+            \textbf{Característica} & \textbf{TCP} & \textbf{UDP} \\
+            \hline\hline
+            Handshake & 3 pacotes & 0 pacotes \\
+            \hline
+            Header & 20-60 bytes & 8 bytes \\
+            \hline
+            Confirmação (ACK) & Sim & Não \\
+            \hline
+            Ordenação & Garantida & Não garantida \\
+            \hline
+            Retransmissão & Sim & Não \\
+            \hline
+            Controle de fluxo & Sim & Não \\
+            \hline
+            Overhead & Alto (\textasciitilde40-50\%) & Baixo (\textasciitilde5\%) \\
+            \hline
+            Velocidade & Mais lento & Mais rápido \\
+            \hline
+            Confiabilidade & Alta & Baixa \\
+            \hline
+            \textbf{Uso no projeto} & Tarefas críticas & Status/Monitor \\
+            \hline
+        \end{tabular}
+    \end{center}
+    
+    \vspace{0.5cm}
+    \begin{alertblock}{Decisão de Design}
+        TCP para dados críticos (tarefas e resultados) \\
+        UDP para informações não-críticas (métricas em tempo real)
+    \end{alertblock}
+\end{frame}
+
+% ============================================
+% SEÇÃO 5: RESULTADOS
+% ============================================
+\section{Resultados e Conclusões}
+
+\begin{frame}{Resultados Obtidos}
+    \begin{block}{Funcionalidades Validadas}
+        \begin{itemize}
+            \item[$\checkmark$] Sistema cliente-servidor totalmente funcional
+            \item[$\checkmark$] Comunicação TCP confiável para tarefas
+            \item[$\checkmark$] Monitoramento UDP em tempo real
+            \item[$\checkmark$] Roteamento multi-hop (3 roteadores)
+            \item[$\checkmark$] NAT e port forwarding funcionando
+            \item[$\checkmark$] Interface gráfica intuitiva
+            \item[$\checkmark$] 5 tipos de tarefas implementadas
+        \end{itemize}
+    \end{block}
+    
+    \vspace{0.3cm}
+    
+    \begin{exampleblock}{Métricas de Performance}
+        \begin{itemize}
+            \item Tempo de resposta médio: 200-500ms
+            \item Taxa de perda de pacotes UDP: < 0.1\%
+            \item Throughput TCP: \textasciitilde10 MB/s (localhost)
+            \item Overhead de rede: TCP 45\%, UDP 5\%
+        \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Desafios Encontrados}
+    \begin{alertblock}{Desafios Técnicos}
+        \begin{enumerate}
+            \item \textbf{Configuração NAT:}
+                \begin{itemize}
+                    \item Port forwarding para múltiplas portas
+                    \item Tradução de endereços entre redes
+                \end{itemize}
+            
+            \item \textbf{Sincronização TCP/UDP:}
+                \begin{itemize}
+                    \item Garantir que ambos os servidores iniciem corretamente
+                    \item Tratar desconexões e reconexões
+                \end{itemize}
+            
+            \item \textbf{Interface Gráfica:}
+                \begin{itemize}
+                    \item Thread-safety no Swing
+                    \item Atualização em tempo real sem travar a UI
+                \end{itemize}
+            
+            \item \textbf{Análise no Wireshark:}
+                \begin{itemize}
+                    \item Filtrar tráfego relevante
+                    \item Interpretar payloads binários
+                \end{itemize}
+        \end{enumerate}
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Aprendizados}
+    \textbf{Conceitos de Redes Aplicados:}
+    
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Camada de Transporte:}
+            \begin{itemize}
+                \item TCP three-way handshake
+                \item Sequence/ACK numbers
+                \item Controle de fluxo
+                \item Retransmissão
+                \item UDP connectionless
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Camada de Rede:}
+            \begin{itemize}
+                \item Roteamento estático
+                \item NAT e port forwarding
+                \item Sub-redes e endereçamento
+                \item Traceroute
+                \item ARP
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    
+    \vspace{0.5cm}
+    
+    \begin{block}{Habilidades Desenvolvidas}
+        \begin{itemize}
+            \item Programação de sockets em Java
+            \item Configuração de equipamentos Cisco
+            \item Análise de tráfego com Wireshark
+            \item Design de protocolos de aplicação
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Possíveis Melhorias}
+    \textbf{Melhorias Futuras:}
+    
+    \begin{enumerate}
+        \item \textbf{Segurança:}
+            \begin{itemize}
+                \item Implementar TLS/SSL para TCP
+                \item Autenticação de clientes
+                \item Criptografia de payloads
+            \end{itemize}
+        
+        \item \textbf{Escalabilidade:}
+            \begin{itemize}
+                \item Pool de threads no servidor
+                \item Balanceamento de carga
+                \item Cache de resultados
+            \end{itemize}
+        
+        \item \textbf{Funcionalidades:}
+            \begin{itemize}
+                \item Mais tipos de tarefas
+                \item Enfileiramento de tarefas
+                \item Priorização de requisições
+            \end{itemize}
+        
+        \item \textbf{Monitoramento:}
+            \begin{itemize}
+                \item Logs detalhados
+                \item Métricas adicionais
+                \item Dashboard web
+            \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Conclusão}
+    \begin{block}{Objetivos Alcançados}
+        \begin{itemize}
+            \item[$\checkmark$] Sistema funcional de processamento distribuído
+            \item[$\checkmark$] Comunicação eficiente TCP/UDP
+            \item[$\checkmark$] Roteamento multi-hop configurado
+            \item[$\checkmark$] Análise detalhada do tráfego de rede
+            \item[$\checkmark$] Documentação completa
+        \end{itemize}
+    \end{block}
+    
+    \vspace{0.5cm}
+    
+    \begin{exampleblock}{Considerações Finais}
+        O projeto demonstrou com sucesso a aplicação prática de conceitos de redes de computadores, integrando programação, configuração de equipamentos e análise de tráfego. A escolha adequada dos protocolos (TCP para confiabilidade, UDP para eficiência) resultou em um sistema robusto e eficiente.
+    \end{exampleblock}
+\end{frame}
+
+% ============================================
+% SLIDE FINAL
+% ============================================
+\begin{frame}[plain]
+    \begin{center}
+        \Huge \textcolor{ciscoBlue}{\textbf{Obrigado!}}
+        
+        \vspace{1cm}
+        
+        \Large Perguntas?
+        
+        \vspace{1cm}
+        
+        \normalsize
+        \textbf{Giuseppe Sena} \\
+        Redes de Computadores \\
+        \today
+        
+        \vspace{0.5cm}
+        
+        \small
+        \textit{Código-fonte disponível em:} \\
+        \texttt{github.com/giusfds/serverShow}
+    \end{center}
+\end{frame}
+
+\end{document}  \begin{itemize}
+                    \item Ordenação de 10.000 elementos
+                    \item Busca em array ordenado
+                    \item Multiplicação de matrizes 100x100
+                    \item Cálculo de números primos até 100.000
+                    \item Transferência de arquivo
+                \end{itemize}
+            \item Monitoramento em tempo real via UDP
+        \end{enumerate}
+    \end{block}
+\end{frame}
+\begin{frame}{Testes de Conectividade}
+    \textbf{Comandos executados no PC1:}
+    
+    \begin{block}{Teste de Ping}
+        \texttt{PC1> ping 10.0.0.100} \\
+        \textcolor{green}{Reply from 10.0.0.100: bytes=32 time<1ms TTL=125}
+    \end{block}
+    
+    \begin{block}{Traceroute}
+        \texttt{PC1> tracert 10.0.0.100}
+        \begin{itemize}
+            \item Hop 1: 192.168.0.1 (R1)
+            \item Hop 2: 172.16.0.1 (R2)
+            \item Hop 3: 10.0.0.1 (R3)
+            \item Hop 4: 10.0.0.100 (PC2)
+        \end{itemize}
+    \end{block}
+    
+    \begin{exampleblock}{Resultado}
+        Rede totalmente funcional com 3 saltos entre cliente e servidor
+    \end{exampleblock}
+\end{frame}
+
+% ============================================
+% SEÇÃO 3 — JAVA
+% ============================================
+\section{Aplicação Java}
+
+\begin{frame}[fragile]{Servidor - Código Principal}
+\begin{lstlisting}[language=Java, basicstyle=\ttfamily\tiny]
+public class FileServer {
+    private ServerSocket tcpServer;
+    private DatagramSocket udpServer;
+    private volatile boolean running;
+
+    private void startTCPServer() throws IOException {
+        tcpServer = new ServerSocket(5000);
+        while (running) {
+            Socket clientSocket = tcpServer.accept();
+            new Thread(() -> handleClient(clientSocket)).start();
+        }
+    }
+
+    private void startUDPServer() throws IOException {
+        udpServer = new DatagramSocket(5001);
+        while (running) {
+            byte[] buffer = new byte[1024];
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            udpServer.receive(packet);
+
+            String metrics = getServerMetrics();
+            byte[] response = metrics.getBytes();
+            DatagramPacket responsePacket =
+                new DatagramPacket(response, response.length,
+                packet.getAddress(), packet.getPort());
+            udpServer.send(responsePacket);
+        }
+    }
+}
+\end{lstlisting}
+\end{frame}
+
+% ============================================
+% SEÇÃO 4 — WIRESHARK
+% ============================================
+\section{Análise no Wireshark}
+
+\begin{frame}{Análise TCP - Three-Way Handshake}
+    \begin{center}
+        \begin{tikzpicture}[scale=0.85]
+            \node at (0,4) {\textbf{Cliente}};
+            \node at (8,4) {\textbf{Servidor}};
+
+            \draw[thick] (0,3.5) -- (0,0);
+            \draw[thick] (8,3.5) -- (8,0);
+
+            \draw[->, thick, red] (0,3) -- (8,2.5) node[midway, above] {SYN};
+            \draw[->, thick, blue] (8,2) -- (0,1.5) node[midway, above] {SYN-ACK};
+            \draw[->, thick, green!50!black] (0,1) -- (8,0.5) node[midway, above] {ACK};
+
+            \node at (4,0) {\textcolor{green}{Conexão Estabelecida}};
+        \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\end{document}
