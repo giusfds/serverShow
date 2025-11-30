@@ -108,9 +108,9 @@ show ip nat translations
 **O QUE FAZER:**
 
 1. No PC1, abra Command Prompt
-2. Execute: `ping 10.0.0.100`
+2. Execute: `ping 10.0.1.100`
 3. Tire screenshot mostrando sucesso (Reply from...)
-4. Execute: `tracert 10.0.0.100`
+4. Execute: `tracert 10.0.1.100`
 5. Tire screenshot mostrando o caminho pelos 3 roteadores
 
 **ONDE SALVAR:**
