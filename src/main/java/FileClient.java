@@ -12,8 +12,8 @@ public class FileClient extends JFrame {
     private JProgressBar progressBar;
     private JFileChooser fileChooser;
 
-    private static final String AUTH_KEY = Config.get("auth.key");
-    private static final String PASSWORD = Config.get("password");
+    private static final String AUTH_KEY = Config.getAuthKey();
+    private static final String PASSWORD = Config.getPassword();
 
     public FileClient() {
         super("File Client");

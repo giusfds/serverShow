@@ -27,14 +27,15 @@ public class FileServer extends JFrame {
     private ServerSocket serverSocket;
     private ExecutorService pool = Executors.newCachedThreadPool();
     private volatile boolean running = false;
-    private final int port = 5000;
+    private int port;
 
     // Configuration
-    private static final String AUTH_KEY = Config.get("auth.key");
-    private static final String PASSWORD_HASH = sha256(Config.get("password"));
+    private static final String AUTH_KEY = Config.getAuthKey();
+    private static final String PASSWORD_HASH = sha256(Config.getPassword());
 
     public FileServer() {
         super("File Server");
+        this.port = Config.getTcpPort();
         initUI();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 420);

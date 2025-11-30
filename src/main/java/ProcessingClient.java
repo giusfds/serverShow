@@ -41,8 +41,8 @@ public class ProcessingClient extends JFrame {
     private ScheduledExecutorService monitorExecutor;
 
     // Configuration
-    private static final String AUTH_KEY = Config.get("auth.key");
-    private static final String PASSWORD = Config.get("password");
+    private static final String AUTH_KEY = Config.getAuthKey();
+    private static final String PASSWORD = Config.getPassword();
 
     public ProcessingClient() {
         super("Processing Client - Cliente de Processamento Distribuído");
@@ -60,9 +60,9 @@ public class ProcessingClient extends JFrame {
         JPanel connectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         connectionPanel.setBorder(new TitledBorder("Conexão com Servidor"));
 
-        hostField = new JTextField("localhost", 12);
-        tcpPortField = new JTextField("5000", 5);
-        udpPortField = new JTextField("5001", 5);
+        hostField = new JTextField(Config.getIp(), 12);
+        tcpPortField = new JTextField(String.valueOf(Config.getTcpPort()), 5);
+        udpPortField = new JTextField(String.valueOf(Config.getUdpPort()), 5);
         connectBtn = new JButton("Conectar");
         disconnectBtn = new JButton("Desconectar");
         disconnectBtn.setEnabled(false);
@@ -267,13 +267,17 @@ public class ProcessingClient extends JFrame {
     }
 
     private void connect() {
-        serverHost = Config.getIp();
-        tcpPort = Config.getTcpPort();
-        udpPort = Config.getUdpPort();
-
-        hostField.setText(serverHost);
-        tcpPortField.setText(String.valueOf(tcpPort));
-        udpPortField.setText(String.valueOf(udpPort));
+        serverHost = hostField.getText().trim();
+        try {
+            tcpPort = Integer.parseInt(tcpPortField.getText().trim());
+            udpPort = Integer.parseInt(udpPortField.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Portas inv\u00e1lidas. Use n\u00fameros inteiros.",
+                    "Erro de Valida\u00e7\u00e3o",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         new SwingWorker<Boolean, Void>() {
             @Override
@@ -295,18 +299,18 @@ public class ProcessingClient extends JFrame {
                         disconnectBtn.setEnabled(true);
                         monitorBtn.setEnabled(true);
                         executeBtn.setEnabled(true);
-                        
+
                         hostField.setEnabled(false);
                         tcpPortField.setEnabled(false);
                         udpPortField.setEnabled(false);
-                        
+
                         statusLabel.setText("Conectado ao servidor em " + serverHost + ":" + tcpPort);
                         logResult("✓ Conexão estabelecida com sucesso!");
                     } else {
                         statusLabel.setText("Falha ao conectar. Verifique o endereço e porta.");
                         JOptionPane.showMessageDialog(ProcessingClient.this,
-                                "Não foi possível conectar ao servidor " + serverHost + ":" + tcpPort + 
-                                "\nVerifique se o servidor está ativo e se o IP na Configuração está correto.",
+                                "Não foi possível conectar ao servidor " + serverHost + ":" + tcpPort +
+                                        "\nVerifique se o servidor está ativo e se o IP na Configuração está correto.",
                                 "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception e) {

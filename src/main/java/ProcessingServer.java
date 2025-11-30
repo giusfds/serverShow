@@ -41,8 +41,8 @@ public class ProcessingServer extends JFrame {
     // Configuration
     private int tcpPort = 5000;
     private int udpPort = 5001;
-    private static final String AUTH_KEY = Config.get("auth.key");
-    private static final String PASSWORD_HASH = sha256(Config.get("password"));
+    private static final String AUTH_KEY = Config.getAuthKey();
+    private static final String PASSWORD_HASH = sha256(Config.getPassword());
 
     public ProcessingServer() {
         super("Processing Server - Sistema de Processamento Distribuído");
@@ -63,7 +63,7 @@ public class ProcessingServer extends JFrame {
         // TCP Controls
         JPanel tcpPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         tcpPanel.setBorder(new TitledBorder("TCP Server (Processamento de Tarefas)"));
-        tcpPortField = new JTextField("5000", 5);
+        tcpPortField = new JTextField(String.valueOf(Config.getTcpPort()), 5);
         startTcpBtn = new JButton("Iniciar TCP");
         stopTcpBtn = new JButton("Parar TCP");
         stopTcpBtn.setEnabled(false);
@@ -75,7 +75,7 @@ public class ProcessingServer extends JFrame {
         // UDP Controls
         JPanel udpPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         udpPanel.setBorder(new TitledBorder("UDP Server (Monitoramento)"));
-        udpPortField = new JTextField("5001", 5);
+        udpPortField = new JTextField(String.valueOf(Config.getUdpPort()), 5);
         startUdpBtn = new JButton("Iniciar UDP");
         stopUdpBtn = new JButton("Parar UDP");
         stopUdpBtn.setEnabled(false);
@@ -224,7 +224,7 @@ public class ProcessingServer extends JFrame {
         } catch (NumberFormatException e) {
             udpPort = Config.getUdpPort(); // Fallback para o Config se o texto for inválido
         }
-        
+
         udpRunning = true;
         startUdpBtn.setEnabled(false);
         stopUdpBtn.setEnabled(true);
@@ -245,7 +245,6 @@ public class ProcessingServer extends JFrame {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     udpSocket.receive(packet);
 
-                    
                     int lossPercentage = Config.getPacketLoss();
                     if (lossPercentage > 0) {
                         if (new java.util.Random().nextInt(100) < lossPercentage) {

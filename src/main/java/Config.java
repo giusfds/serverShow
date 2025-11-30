@@ -5,7 +5,7 @@ import java.util.Properties;
 
 public class Config {
     private static Properties props = new Properties();
-    private static final String FILE_NAME = "config.properties"; 
+    private static final String FILE_NAME = "config.properties";
 
     static {
         load();
@@ -34,24 +34,69 @@ public class Config {
         props.setProperty("udpPort", "5001");
         props.setProperty("latency", "0");
         props.setProperty("packetLoss", "0");
+        props.setProperty("auth.key", "ViniShow");
+        props.setProperty("password", "SuperViniD");
     }
 
     // Getters e Setters Tipados
-    public static String getIp() { return props.getProperty("serverIp", "127.0.0.1"); }
-    public static void setIp(String ip) { props.setProperty("serverIp", ip); }
+    public static String getIp() {
+        return props.getProperty("serverIp", "127.0.0.1");
+    }
 
-    public static int getTcpPort() { return Integer.parseInt(props.getProperty("tcpPort", "5000")); }
-    public static void setTcpPort(int port) { props.setProperty("tcpPort", String.valueOf(port)); }
+    public static void setIp(String ip) {
+        props.setProperty("serverIp", ip);
+    }
 
-    public static int getUdpPort() { return Integer.parseInt(props.getProperty("udpPort", "5001")); }
-    public static void setUdpPort(int port) { props.setProperty("udpPort", String.valueOf(port)); }
+    public static int getTcpPort() {
+        return Integer.parseInt(props.getProperty("tcpPort", "5000"));
+    }
 
-    public static int getLatency() { return Integer.parseInt(props.getProperty("latency", "0")); }
-    public static void setLatency(int ms) { props.setProperty("latency", String.valueOf(ms)); }
+    public static void setTcpPort(int port) {
+        props.setProperty("tcpPort", String.valueOf(port));
+    }
 
-    public static int getPacketLoss() { return Integer.parseInt(props.getProperty("packetLoss", "0")); }
-    public static void setPacketLoss(int pct) { props.setProperty("packetLoss", String.valueOf(pct)); }
-    
+    public static int getUdpPort() {
+        return Integer.parseInt(props.getProperty("udpPort", "5001"));
+    }
+
+    public static void setUdpPort(int port) {
+        props.setProperty("udpPort", String.valueOf(port));
+    }
+
+    public static int getLatency() {
+        return Integer.parseInt(props.getProperty("latency", "0"));
+    }
+
+    public static void setLatency(int ms) {
+        props.setProperty("latency", String.valueOf(ms));
+    }
+
+    public static int getPacketLoss() {
+        return Integer.parseInt(props.getProperty("packetLoss", "0"));
+    }
+
+    public static void setPacketLoss(int pct) {
+        props.setProperty("packetLoss", String.valueOf(pct));
+    }
+
+    public static String getAuthKey() {
+        return props.getProperty("auth.key", "ViniShow");
+    }
+
+    public static void setAuthKey(String key) {
+        props.setProperty("auth.key", key);
+    }
+
+    public static String getPassword() {
+        return props.getProperty("password", "SuperViniD");
+    }
+
+    public static void setPassword(String pwd) {
+        props.setProperty("password", pwd);
+    }
+
     // Genérico (para compatibilidade com códigos antigos se houver)
-    public static String get(String key) { return props.getProperty(key, ""); }
+    public static String get(String key) {
+        return props.getProperty(key, "");
+    }
 }
