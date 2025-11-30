@@ -36,7 +36,7 @@
 📸 SCREENSHOTS (24 arquivos) - PRIORIDADE MÁXIMA
    └── docs/screenshots/
        ├── 01-09: Cisco Packet Tracer (rede e testes)
-       ├── 10-17: Aplicação Java (servidor e cliente)
+       ├── 10-17: Aplicação Java (servidor e cliente)✅
        └── 18-24: Wireshark (análise de pacotes)
 
 💾 ARQUIVO PACKET TRACER
