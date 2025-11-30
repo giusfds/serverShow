@@ -7,6 +7,7 @@ Sistema de Processamento Distribuído
 [![Java](https://img.shields.io/badge/Java-8+-orange.svg)](https://www.java.com)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Network](https://img.shields.io/badge/Network-TCP%2FUDP-green.svg)]()
+
 </div>
 
 ## Sobre o Projeto
@@ -43,6 +44,7 @@ Sistema cliente-servidor completo para **processamento distribuído de algoritmo
 ## Início Rápido
 
 ### Pré-requisitos
+
 - Java JDK 8 ou superior
 - Cisco Packet Tracer (para testes de rede)
 - Wireshark (para análise de pacotes)
@@ -55,17 +57,56 @@ cd serverShow
 ```
 
 **Windows:**
+
 ```bash
 run.bat
 ```
 
 **Linux/Mac:**
+
 ```bash
 chmod +x run.sh
 ./run.sh
 ```
 
 Escolha a opção **3** para executar servidor e cliente simultaneamente.
+
+### 🧪 Testes e Desenvolvimento
+
+**Script de Testes Interativo:**
+
+```bash
+./test.sh       # Mac/Linux
+test.bat        # Windows
+```
+
+Este script oferece menu com opções para:
+
+- Verificar Java
+- Compilar código
+- Executar testes completos
+- Verificar portas
+- Gerenciar processos
+
+## 📚 Documentação Adicional
+
+### Para Desenvolvimento:
+
+- **[COMECE_AQUI.md](COMECE_AQUI.md)** - Resumo do que falta fazer no projeto
+- **[STATUS_PROJETO.txt](STATUS_PROJETO.txt)** - Status visual do projeto
+
+### Tutoriais Detalhados:
+
+- **[docs/TUTORIAL_COMPLETO.md](docs/TUTORIAL_COMPLETO.md)** - Tutorial passo a passo completo (6-8h)
+- **[docs/GUIA_WIRESHARK.md](docs/GUIA_WIRESHARK.md)** - Como usar Wireshark do zero
+- **[docs/CHECKLIST_SCREENSHOTS.md](docs/CHECKLIST_SCREENSHOTS.md)** - Lista de screenshots necessários
+- **[docs/TEMPLATE_IMAGENS.md](docs/TEMPLATE_IMAGENS.md)** - Como inserir imagens no relatório
+
+### Configuração de Rede:
+
+- **[docs/CISCO_CONFIG.md](docs/CISCO_CONFIG.md)** - Comandos completos dos roteadores
+- **[docs/WIRESHARK.md](docs/WIRESHARK.md)** - Filtros e análise de pacotes
+- **[docs/RELATORIO.md](docs/RELATORIO.md)** - Relatório técnico completo
 
 ## Tecnologias
 
