@@ -516,7 +516,17 @@ public class ProcessingServer extends JFrame {
             }
             log("→ Tamanho esperado: " + fileSize + " bytes");
 
-            File tempDir = new File("received_files");
+            // Usa caminho absoluto baseado no diretório do usuário ou diretório pai do bin
+            File tempDir;
+            String currentDir = System.getProperty("user.dir");
+            
+            // Se estamos em bin/, sobe um nível
+            if (currentDir.endsWith("bin") || currentDir.endsWith("bin\\") || currentDir.endsWith("bin/")) {
+                tempDir = new File(new File(currentDir).getParent(), "received_files");
+            } else {
+                tempDir = new File(currentDir, "received_files");
+            }
+            
             if (!tempDir.exists()) {
                 if (!tempDir.mkdirs()) {
                     throw new IOException("Não foi possível criar diretório: " + tempDir.getAbsolutePath());
