@@ -47,13 +47,14 @@ public class FileServer extends JFrame {
         root.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JPanel top = new JPanel(new BorderLayout(5, 5));
-        
+
         // Painel de informações
         JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel infoLabel = new JLabel("<html><b>Porta TCP:</b> " + port + " | <b>Libere esta porta no firewall/roteador!</b></html>");
+        JLabel infoLabel = new JLabel(
+                "<html><b>Porta TCP:</b> " + port + " | <b>Libere esta porta no firewall/roteador!</b></html>");
         infoPanel.add(infoLabel);
         top.add(infoPanel, BorderLayout.NORTH);
-        
+
         // Painel de botões
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         startBtn = new JButton("▶ Iniciar Servidor");
@@ -64,7 +65,7 @@ public class FileServer extends JFrame {
         btnPanel.add(stopBtn);
         btnPanel.add(chooseDirBtn);
         top.add(btnPanel, BorderLayout.SOUTH);
-        
+
         root.add(top, BorderLayout.NORTH);
 
         listModel = new DefaultListModel<>();

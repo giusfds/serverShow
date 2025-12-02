@@ -33,6 +33,7 @@
 ## 🔐 Autenticação
 
 O sistema usa **autenticação** para segurança:
+
 - **Chave de Autenticação**: `ViniShow` (padrão)
 - **Senha**: `SuperViniD` (padrão)
 
@@ -50,14 +51,17 @@ Para alterar, edite o arquivo `config.properties` ou use o menu "Configurações
 ## 🌐 Testando a Conexão
 
 ### 1. Teste Local (mesmo PC):
+
 - Servidor: `localhost` ou `127.0.0.1`
 - Porta: `5000`
 
 ### 2. Teste na Rede Local (mesma Wi-Fi/Ethernet):
+
 - Servidor: IP local do amigo (ex: `192.168.1.100`)
 - Ping no CMD: `ping 192.168.1.100`
 
 ### 3. Teste via Radmin VPN:
+
 - Servidor: IP da rede Radmin (ex: `26.x.x.x`)
 - Ambos precisam estar conectados na mesma rede Radmin
 - Ping no CMD: `ping [IP_RADMIN]`
@@ -67,6 +71,7 @@ Para alterar, edite o arquivo `config.properties` ou use o menu "Configurações
 ## 🚨 Resolução de Problemas
 
 ### ❌ "Connection refused" ou "Timeout"
+
 - ✅ Verificar se o servidor está rodando
 - ✅ Confirmar que a porta está correta (mesma nos dois PCs)
 - ✅ Liberar porta no firewall do servidor
@@ -74,10 +79,12 @@ Para alterar, edite o arquivo `config.properties` ou use o menu "Configurações
 - ✅ Se usar Radmin VPN: ambos estão na mesma rede?
 
 ### ❌ "Autenticação falhou"
+
 - ✅ Confirmar que `auth.key` e `password` são IDÊNTICOS nos dois PCs
 - ✅ Verificar no arquivo `config.properties` de ambos
 
 ### ❌ Servidor não inicia
+
 - ✅ Porta 5000 já está em uso? Trocar para outra (ex: 5555)
 - ✅ Fechar outros programas que usem a mesma porta
 
@@ -88,6 +95,7 @@ Para alterar, edite o arquivo `config.properties` ou use o menu "Configurações
 Por padrão, na pasta que você escolheu no botão "📁 Pasta".
 
 Os arquivos recebidos são salvos com **timestamp** no nome:
+
 - Original: `relatorio.pdf`
 - Salvo como: `20241202_143052_relatorio.pdf`
 
@@ -98,6 +106,7 @@ Os arquivos recebidos são salvos com **timestamp** no nome:
 **Cenário**: Você quer enviar `trabalho.pdf` para seu amigo
 
 1. **Amigo** (IP: `192.168.1.50`):
+
    - Abre o servidor
    - Inicia na porta 5000
    - Libera porta no firewall
@@ -141,6 +150,7 @@ Ou use o botão "Configurações" no menu principal do programa.
 ## 🎯 Resumo Ultra-Rápido
 
 **Servidor:**
+
 ```
 1. Iniciar servidor
 2. Anotar IP (ipconfig)
@@ -148,6 +158,7 @@ Ou use o botão "Configurações" no menu principal do programa.
 ```
 
 **Cliente:**
+
 ```
 1. Colocar IP do servidor
 2. Colocar porta (mesma do servidor)
