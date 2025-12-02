@@ -360,6 +360,7 @@ public class ProcessingServer extends JFrame {
                     result = processPrimeTask(in, out);
                     break;
                 case "FILE":
+                    log("→ Processando tarefa FILE...");
                     result = processFileTask(in, out);
                     break;
                 default:
@@ -496,31 +497,61 @@ public class ProcessingServer extends JFrame {
     }
 
     private String processFileTask(DataInputStream in, DataOutputStream out) throws IOException {
-        int nameLen = in.readInt();
-        byte[] nameBytes = new byte[nameLen];
-        in.readFully(nameBytes);
-        String filename = new String(nameBytes, "UTF-8");
-        long fileSize = in.readLong();
-
-        File tempDir = new File("received_files");
-        if (!tempDir.exists())
-            tempDir.mkdirs();
-
-        File target = new File(tempDir, makeSafeFilename(filename));
-
-        try (OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(target))) {
-            byte[] buffer = new byte[8192];
-            long totalRead = 0;
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                fileOut.write(buffer, 0, read);
-                totalRead += read;
-                if (totalRead >= fileSize)
-                    break;
+        try {
+            log("→ Iniciando recebimento de arquivo...");
+            
+            int nameLen = in.readInt();
+            if (nameLen <= 0 || nameLen > 1024) {
+                throw new IOException("Tamanho do nome do arquivo inválido: " + nameLen);
             }
-        }
+            
+            byte[] nameBytes = new byte[nameLen];
+            in.readFully(nameBytes);
+            String filename = new String(nameBytes, "UTF-8");
+            log("→ Nome do arquivo: " + filename);
+            
+            long fileSize = in.readLong();
+            if (fileSize <= 0) {
+                throw new IOException("Tamanho do arquivo inválido: " + fileSize);
+            }
+            log("→ Tamanho esperado: " + fileSize + " bytes");
 
-        return String.format("Arquivo '%s' (%d bytes) recebido com sucesso", filename, fileSize);
+            File tempDir = new File("received_files");
+            if (!tempDir.exists()) {
+                if (!tempDir.mkdirs()) {
+                    throw new IOException("Não foi possível criar diretório: " + tempDir.getAbsolutePath());
+                }
+            }
+
+            File target = new File(tempDir, makeSafeFilename(filename));
+            log("→ Salvando em: " + target.getAbsolutePath());
+
+            try (OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(target))) {
+                byte[] buffer = new byte[8192];
+                long totalRead = 0;
+                int read;
+                
+                while (totalRead < fileSize && (read = in.read(buffer, 0, (int) Math.min(buffer.length, fileSize - totalRead))) != -1) {
+                    fileOut.write(buffer, 0, read);
+                    totalRead += read;
+                }
+                
+                fileOut.flush();
+                
+                if (totalRead != fileSize) {
+                    log("⚠ Aviso: Bytes recebidos (" + totalRead + ") diferem do esperado (" + fileSize + ")");
+                }
+                
+                log("✓ Arquivo recebido com sucesso: " + totalRead + " bytes");
+            }
+
+            return String.format("Arquivo '%s' (%.2f KB) recebido e salvo com sucesso", 
+                                 filename, fileSize / 1024.0);
+                                 
+        } catch (IOException e) {
+            log("✗ Erro ao processar arquivo: " + e.getMessage());
+            throw new IOException("Falha no processamento do arquivo: " + e.getMessage(), e);
+        }
     }
 
     // Algoritmos de Ordenação

@@ -167,6 +167,9 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Ativa antialiasing e renderização de alta qualidade
+        System.setProperty("awt.useSystemAAFontSettings", "on");
+        
         // Define look and feel do sistema
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -174,7 +177,7 @@ public class Main extends JFrame {
             // Usa o look and feel padrão se falhar
         }
 
-        // Inicia o menu principalw
+        // Inicia o menu principal
         SwingUtilities.invokeLater(() -> {
             Main mainMenu = new Main();
             mainMenu.setVisible(true);

@@ -456,7 +456,11 @@ public class ProcessingClient extends JFrame {
                     } else if (taskType.startsWith("Números Primos")) {
                         sendPrimeTask(out);
                     } else if (taskType.startsWith("Transferência")) {
-                        sendFileTask(out);
+                        try {
+                            sendFileTask(out);
+                        } catch (IOException fileEx) {
+                            throw new IOException("Erro no envio do arquivo: " + fileEx.getMessage(), fileEx);
+                        }
                     }
 
                     publish(70);
@@ -490,6 +494,19 @@ public class ProcessingClient extends JFrame {
                     String result = get();
                     logResult(result);
                     statusLabel.setText("Tarefa concluída com sucesso");
+                } catch (java.util.concurrent.ExecutionException e) {
+                    Throwable cause = e.getCause();
+                    String errorMsg = cause != null ? cause.getMessage() : e.getMessage();
+                    logResult("✗ Erro ao executar tarefa: " + errorMsg);
+                    statusLabel.setText("Erro: " + errorMsg);
+                    
+                    // Mostra dialog com erro detalhado
+                    JOptionPane.showMessageDialog(
+                        ProcessingClient.this,
+                        "Erro ao processar tarefa:\n\n" + errorMsg,
+                        "Erro de Processamento",
+                        JOptionPane.ERROR_MESSAGE
+                    );
                 } catch (Exception e) {
                     logResult("✗ Erro ao executar tarefa: " + e.getMessage());
                     statusLabel.setText("Erro ao executar tarefa");
@@ -577,12 +594,38 @@ public class ProcessingClient extends JFrame {
     }
 
     private void sendFileTask(DataOutputStream out) throws IOException {
-        out.writeUTF("FILE");
-
-        File file = new File(filePathField.getText());
-        if (!file.exists() || !file.isFile()) {
-            throw new IOException("Arquivo inválido");
+        String filePath = filePathField.getText();
+        
+        // Validações detalhadas
+        if (filePath == null || filePath.trim().isEmpty()) {
+            throw new IOException("Nenhum arquivo foi selecionado. Clique em 'Escolher Arquivo' primeiro.");
         }
+        
+        File file = new File(filePath.trim());
+        
+        if (!file.exists()) {
+            throw new IOException("O arquivo não existe: " + file.getAbsolutePath());
+        }
+        
+        if (!file.isFile()) {
+            throw new IOException("O caminho não aponta para um arquivo válido: " + file.getAbsolutePath());
+        }
+        
+        if (!file.canRead()) {
+            throw new IOException("Sem permissão para ler o arquivo: " + file.getAbsolutePath());
+        }
+        
+        if (file.length() == 0) {
+            throw new IOException("O arquivo está vazio: " + file.getName());
+        }
+        
+        if (file.length() > 100 * 1024 * 1024) { // Limite de 100MB
+            throw new IOException("Arquivo muito grande (máx 100MB): " + file.getName());
+        }
+        
+        logResult(String.format("→ Enviando arquivo: %s (%.2f KB)", file.getName(), file.length() / 1024.0));
+        
+        out.writeUTF("FILE");
 
         byte[] nameBytes = file.getName().getBytes("UTF-8");
         out.writeInt(nameBytes.length);
@@ -592,12 +635,16 @@ public class ProcessingClient extends JFrame {
         try (InputStream fileIn = new BufferedInputStream(new FileInputStream(file))) {
             byte[] buffer = new byte[8192];
             int read;
+            long totalSent = 0;
             while ((read = fileIn.read(buffer)) != -1) {
                 out.write(buffer, 0, read);
+                totalSent += read;
             }
+            out.flush();
+            logResult(String.format("→ Arquivo enviado: %d bytes", totalSent));
+        } catch (IOException ex) {
+            throw new IOException("Erro ao ler/enviar o arquivo: " + ex.getMessage(), ex);
         }
-
-        out.flush();
         logResult(String.format("→ Enviando arquivo: %s (%d bytes)", file.getName(), file.length()));
     }
 
