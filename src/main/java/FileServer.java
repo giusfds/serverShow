@@ -34,11 +34,11 @@ public class FileServer extends JFrame {
     private static final String PASSWORD_HASH = sha256(Config.getPassword());
 
     public FileServer() {
-        super("File Server");
+        super("File Server - Receptor de Arquivos");
         this.port = Config.getTcpPort();
         initUI();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 420);
+        setSize(600, 450);
         setLocationRelativeTo(null);
     }
 
@@ -46,14 +46,25 @@ public class FileServer extends JFrame {
         JPanel root = new JPanel(new BorderLayout(10, 10));
         root.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        startBtn = new JButton("Start Server (port " + port + ")");
-        stopBtn = new JButton("Stop Server");
+        JPanel top = new JPanel(new BorderLayout(5, 5));
+        
+        // Painel de informações
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel infoLabel = new JLabel("<html><b>Porta TCP:</b> " + port + " | <b>Libere esta porta no firewall/roteador!</b></html>");
+        infoPanel.add(infoLabel);
+        top.add(infoPanel, BorderLayout.NORTH);
+        
+        // Painel de botões
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        startBtn = new JButton("▶ Iniciar Servidor");
+        stopBtn = new JButton("⏹ Parar Servidor");
         stopBtn.setEnabled(false);
-        chooseDirBtn = new JButton("Save Dir: " + saveDir.getAbsolutePath());
-        top.add(startBtn);
-        top.add(stopBtn);
-        top.add(chooseDirBtn);
+        chooseDirBtn = new JButton("📁 Pasta: " + saveDir.getAbsolutePath());
+        btnPanel.add(startBtn);
+        btnPanel.add(stopBtn);
+        btnPanel.add(chooseDirBtn);
+        top.add(btnPanel, BorderLayout.SOUTH);
+        
         root.add(top, BorderLayout.NORTH);
 
         listModel = new DefaultListModel<>();

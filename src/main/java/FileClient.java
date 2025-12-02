@@ -16,10 +16,10 @@ public class FileClient extends JFrame {
     private static final String PASSWORD = Config.getPassword();
 
     public FileClient() {
-        super("File Client");
+        super("File Client - Enviar Arquivo via LAN");
         initUI();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(560, 220);
+        setSize(600, 250);
         setLocationRelativeTo(null);
     }
 
@@ -30,11 +30,13 @@ public class FileClient extends JFrame {
         JPanel fields = new JPanel(new GridLayout(2, 1, 6, 6));
 
         JPanel hp = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        hostField = new JTextField("localhost", 15);
-        portField = new JTextField("5000", 5);
-        hp.add(new JLabel("Host:"));
+        hostField = new JTextField("localhost", 20);
+        hostField.setToolTipText("Digite o IP do servidor (ex: 192.168.1.100 ou IP do Radmin)");
+        portField = new JTextField(String.valueOf(Config.getTcpPort()), 6);
+        portField.setToolTipText("Porta TCP do servidor");
+        hp.add(new JLabel("IP/Host do Servidor:"));
         hp.add(hostField);
-        hp.add(new JLabel("Port:"));
+        hp.add(new JLabel("Porta:"));
         hp.add(portField);
 
         JPanel filePanel = new JPanel(new BorderLayout(6, 6));
