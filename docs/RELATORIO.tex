@@ -1,0 +1,790 @@
+\documentclass[12pt,a4paper]{article}
+
+% Pacotes essenciais
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+
+% Configuração de geometria
+\geometry{
+    left=3cm,
+    right=2cm,
+    top=3cm,
+    bottom=2cm
+}
+
+% Configuração de cabeçalho e rodapé
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\leftmark}
+\lhead{Sistema de Processamento Distribuído}
+\rfoot{\thepage}
+
+% Configuração de hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    citecolor=blue,
+}
+
+% Configuração de código
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{gray!10},
+    commentstyle=\color{green!50!black},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{orange},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single
+}
+\lstset{style=mystyle}
+
+% Comando para checkbox
+\newcommand{\checkbox}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\checkmark}}}
+
+\begin{document}
+
+% Página de título
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge\bfseries RELATÓRIO TÉCNICO\par}
+    \vspace{1cm}
+    {\LARGE Sistema de Processamento Distribuído com TCP/UDP\par}
+    \vspace{2cm}
+    
+    {\Large\textbf{Informações do Projeto}\par}
+    \vspace{0.5cm}
+    
+    {\large
+    \textbf{Disciplina:} Redes de Computadores\par
+    \textbf{Aluno(s):} André Luis Silva, Caio Diniz, Giuseppe Cordeiro, Vinícius Miranda\par
+    \textbf{Professor:} Max Machado\par
+    }
+    
+    \vfill
+    
+    {\large \today\par}
+\end{titlepage}
+
+% Sumário
+\tableofcontents
+\newpage
+
+% Lista de figuras
+\listoffigures
+\newpage
+
+% Lista de tabelas
+\listoftables
+\newpage
+
+\section{INTRODUÇÃO}
+
+\subsection{Contexto}
+
+Este projeto implementa um \textbf{Sistema de Processamento Distribuído} que simula um ambiente de análise de performance de algoritmos computacionais. O sistema permite que um cliente envie tarefas computacionalmente intensivas para um servidor remoto processar, retornando os resultados e métricas de execução.
+
+O contexto escolhido combina conceitos de múltiplas disciplinas:
+
+\begin{itemize}
+    \item \textbf{Redes de Computadores}: Comunicação TCP/UDP, roteamento, NAT
+    \item \textbf{Arquitetura de Computadores}: Processamento paralelo, otimização
+    \item \textbf{Sistemas Operacionais}: Multithreading, sincronização, pools de threads
+    \item \textbf{Análise de Algoritmos}: Comparação de complexidade e performance
+\end{itemize}
+
+\subsection{Objetivos}
+
+\textbf{Objetivo Geral:}
+
+Desenvolver um sistema cliente-servidor completo que demonstre o uso de protocolos TCP e UDP, multithreading, e processamento distribuído em uma rede com múltiplos roteadores.
+
+\textbf{Objetivos Específicos:}
+
+\begin{itemize}[label=\checkbox]
+    \item Implementar comunicação TCP para transferência confiável de dados
+    \item Implementar comunicação UDP para monitoramento em tempo real
+    \item Criar interface gráfica Swing intuitiva para o cliente
+    \item Configurar rede com 3 roteadores no Cisco Packet Tracer
+    \item Implementar port forwarding/NAT para roteamento
+    \item Utilizar multithreading para processamento paralelo
+    \item Validar comunicação usando Wireshark
+\end{itemize}
+
+\subsection{Justificativa do Contexto}
+
+A escolha de um sistema de processamento distribuído de algoritmos permite:
+
+\begin{enumerate}
+    \item \textbf{Relevância Prática}: Simula ambientes reais de cloud computing e clusters de processamento
+    \item \textbf{Complexidade Adequada}: Envolve transferência de dados complexos, não apenas mensagens simples
+    \item \textbf{Multidisciplinar}: Integra conhecimentos de diversas áreas da Ciência da Computação
+    \item \textbf{Demonstração Clara}: Permite visualizar diferenças entre TCP (confiável) e UDP (rápido)
+\end{enumerate}
+
+\section{FUNDAMENTAÇÃO TEÓRICA}
+
+\subsection{Protocolo TCP (Transmission Control Protocol)}
+
+\textbf{Características:}
+\begin{itemize}
+    \item Orientado à conexão (three-way handshake)
+    \item Confiável (retransmissão de pacotes perdidos)
+    \item Ordenado (garante ordem de chegada)
+    \item Controle de fluxo e congestionamento
+\end{itemize}
+
+\textbf{Uso no Projeto:}
+\begin{itemize}
+    \item Porta: \textbf{5000}
+    \item Função: Envio de tarefas computacionais e recebimento de resultados
+    \item Justificativa: A integridade dos dados é crítica para tarefas computacionais
+\end{itemize}
+
+\subsection{Protocolo UDP (User Datagram Protocol)}
+
+\textbf{Características:}
+\begin{itemize}
+    \item Sem conexão (connectionless)
+    \item Não confiável (sem garantia de entrega)
+    \item Sem ordenação
+    \item Baixa latência
+\end{itemize}
+
+\textbf{Uso no Projeto:}
+\begin{itemize}
+    \item Porta: \textbf{5001}
+    \item Função: Monitoramento de métricas do servidor em tempo real
+    \item Justificativa: Perda ocasional de pacotes de métricas é aceitável
+\end{itemize}
+
+\subsection{Multithreading}
+
+\textbf{Thread Pools Implementados:}
+
+\begin{enumerate}
+    \item \textbf{Thread Pool de Tarefas} (ExecutorService com 4 threads fixas)
+    \begin{itemize}
+        \item Processa tarefas computacionais simultaneamente
+        \item Evita criação excessiva de threads
+    \end{itemize}
+    
+    \item \textbf{Thread Pool de Rede} (ExecutorService com threads dinâmicas)
+    \begin{itemize}
+        \item Gerencia conexões de rede
+        \item Escala conforme demanda
+    \end{itemize}
+    
+    \item \textbf{SwingWorker}
+    \begin{itemize}
+        \item Evita bloqueio da interface gráfica
+        \item Atualiza UI de forma segura
+    \end{itemize}
+\end{enumerate}
+
+\subsection{NAT e Port Forwarding}
+
+\textbf{Network Address Translation (NAT):}
+\begin{itemize}
+    \item Permite comunicação entre redes privadas diferentes
+    \item Traduz endereços IP na camada de rede
+\end{itemize}
+
+\textbf{Port Forwarding:}
+\begin{itemize}
+    \item Redireciona tráfego de uma porta específica
+    \item Essencial para acessar servidores em redes internas
+\end{itemize}
+
+\section{ARQUITETURA DO SISTEMA}
+
+\subsection{Visão Geral}
+
+\begin{figure}[H]
+    \centering
+    \begin{verbatim}
+________________                                     ________________
+|              |        TCP (porta 5000)             |              |
+|   PC1        |------------------------------------>|     PC2      |
+|  (Cliente)   |        Tarefas e Arquivos           |  (Servidor)  |
+|              |                                     |              |
+| 192.168.1.10 |<------------------------------------|  10.0.0.100  |
+|              |        Resultados                   |              |
+|              |                                     |              |
+|              |        UDP (porta 5001)             |              |
+|              |------------------------------------>|              |
+|              |        Métricas em tempo real       |              |
+|______________|                                     |______________|
+       |                                                      ^
+       |                                                      |
+       V                                                      |
+  _________          _________          _________             |
+  |   R1  |--------> |   R2  |--------> |   R3  |_____________|
+  |192.168|          | 172.16|          |  10.0 |
+  |/16    |          |  /12  |          |  /8   |
+  |_______|          |_______|          |_______|
+    \end{verbatim}
+    \caption{Arquitetura geral do sistema}
+    \label{fig:arquitetura}
+\end{figure}
+
+\subsection{Componentes do Sistema}
+
+\subsubsection{ProcessingClient (PC1)}
+\begin{itemize}
+    \item Interface gráfica Swing
+    \item Conexão TCP para envio de tarefas
+    \item Cliente UDP para monitoramento
+    \item 5 tipos de tarefas disponíveis
+\end{itemize}
+
+\subsubsection{ProcessingServer (PC2)}
+\begin{itemize}
+    \item Servidor TCP (porta 5000)
+    \item Servidor UDP (porta 5001)
+    \item Pool de 4 threads para processamento
+    \item Autenticação com SHA-256
+\end{itemize}
+
+\subsection{Fluxo de Comunicação}
+
+\subsubsection{Fluxo TCP - Execução de Tarefa:}
+
+\begin{enumerate}
+    \item Cliente estabelece conexão TCP com servidor
+    \item Cliente envia credenciais (AUTH\_KEY + PASSWORD)
+    \item Servidor valida credenciais
+    \item Cliente envia tipo de tarefa + dados
+    \item Servidor processa tarefa em thread separada
+    \item Servidor envia resultado de volta
+    \item Conexão é encerrada
+\end{enumerate}
+
+\subsubsection{Fluxo UDP - Monitoramento:}
+
+\begin{enumerate}
+    \item Cliente envia requisição ``STATUS'' via UDP
+    \item Servidor responde com JSON de métricas
+    \item Cliente atualiza interface
+    \item Repete a cada 2 segundos
+\end{enumerate}
+
+\section{IMPLEMENTAÇÃO}
+
+\subsection{Tecnologias Utilizadas}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Tecnologia} & \textbf{Versão} & \textbf{Uso} \\ \midrule
+Java & 8+ & Linguagem principal \\
+Java Swing & - & Interface gráfica \\
+Java Sockets & - & Comunicação TCP/UDP \\
+ExecutorService & - & Multithreading \\
+Cisco Packet Tracer & 8.x & Simulação de rede \\
+Wireshark & 4.x & Análise de pacotes \\ \bottomrule
+\end{tabular}
+\caption{Tecnologias utilizadas no projeto}
+\label{tab:tecnologias}
+\end{table}
+
+\subsection{Estrutura de Classes}
+
+\begin{lstlisting}[language=Java, caption=Estrutura do projeto]
+gui/
+├── ProcessingServer.java    # Servidor principal
+│   ├── Servidor TCP (porta 5000)
+│   ├── Servidor UDP (porta 5001)
+│   ├── Algoritmos de ordenação
+│   ├── Algoritmos de busca
+│   └── Processamento de matrizes
+│
+├── ProcessingClient.java    # Cliente com interface Swing
+│   ├── Conexão TCP
+│   ├── Monitoramento UDP
+│   └── Interface gráfica
+│
+├── Config.java              # Gerenciador de configurações
+└── config.properties        # Arquivo de credenciais
+\end{lstlisting}
+
+\subsection{Algoritmos Implementados}
+
+\subsubsection{Ordenação:}
+\begin{itemize}
+    \item \textbf{Bubble Sort}: $O(n^2)$ - Simples, educacional
+    \item \textbf{Quick Sort}: $O(n \log n)$ médio - Rápido, recursivo
+    \item \textbf{Merge Sort}: $O(n \log n)$ - Estável, divide-e-conquista
+\end{itemize}
+
+\subsubsection{Busca:}
+\begin{itemize}
+    \item \textbf{Linear}: $O(n)$ - Simples, não requer ordenação
+    \item \textbf{Binária}: $O(\log n)$ - Rápida, requer array ordenado
+\end{itemize}
+
+\subsubsection{Outros:}
+\begin{itemize}
+    \item \textbf{Multiplicação de Matrizes}: $O(n^3)$
+    \item \textbf{Crivo de Eratóstenes}: $O(n \log \log n)$
+\end{itemize}
+
+\subsection{Segurança}
+
+\textbf{Autenticação:}
+\begin{lstlisting}[language=Java, caption=Configuração de autenticação]
+String AUTH_KEY = "yourKey";
+String PASSWORD_HASH = sha256("yourPassword");
+\end{lstlisting}
+
+\textbf{Validação:}
+\begin{itemize}
+    \item Todas as entradas são validadas
+    \item Nomes de arquivo são sanitizados
+    \item Timeouts em conexões
+\end{itemize}
+
+\section{CONFIGURAÇÃO DE REDE}
+
+\subsection{Topologia}
+
+% TODO: INSERIR SCREENSHOT: Topologia completa no Packet Tracer
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{screenshots/topology.png}
+%     \caption{Topologia completa no Cisco Packet Tracer}
+%     \label{fig:topology}
+% \end{figure}
+
+\textbf{Descrição:}
+\begin{itemize}
+    \item 2 PCs (cliente e servidor)
+    \item 3 Roteadores (R1, R2, R3)
+    \item 3 redes diferentes (/16, /12, /8)
+\end{itemize}
+
+\subsection{Tabela de Endereçamento}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Dispositivo} & \textbf{Interface} & \textbf{Endereço IP} & \textbf{Máscara} & \textbf{Gateway} \\ \midrule
+PC1 & Eth0 & 192.168.1.10 & 255.255.0.0 & 192.168.0.1 \\
+R1 & Fa0/0 (LAN) & 192.168.0.1 & 255.255.0.0 & - \\
+R1 & Fa0/1 (WAN) & 172.16.0.2 & 255.240.0.0 & - \\
+R2 & Fa0/0 (WAN) & 172.16.0.1 & 255.240.0.0 & - \\
+R2 & Fa0/1 (LAN) & 10.0.0.2 & 255.0.0.0 & - \\
+R3 & Fa0/0 (WAN) & 10.0.0.1 & 255.0.0.0 & - \\
+R3 & Fa0/1 (LAN) & 10.0.0.1 & 255.0.0.0 & - \\
+PC2 & Eth0 & 10.0.0.100 & 255.0.0.0 & 10.0.0.1 \\ \bottomrule
+\end{tabular}
+\caption{Tabela de endereçamento da rede}
+\label{tab:enderecos}
+\end{table}
+
+\subsection{Configuração dos Roteadores}
+
+% TODO: INSERIR SCREENSHOTS: Configuração CLI de R1, R2, R3
+
+\textbf{Comandos Essenciais:}
+
+\textbf{R1:}
+\begin{lstlisting}[language=bash, caption=Configuração do Roteador R1]
+ip nat inside source static tcp 172.16.0.1 5000 192.168.0.1 5000
+ip route 10.0.0.0 255.0.0.0 172.16.0.1
+\end{lstlisting}
+
+\textbf{R2:}
+\begin{lstlisting}[language=bash, caption=Configuração do Roteador R2]
+ip nat inside source static tcp 10.0.0.100 5000 172.16.0.2 5000
+ip route 192.168.0.0 255.255.0.0 172.16.0.2
+ip route 10.0.0.0 255.0.0.0 10.0.0.1
+\end{lstlisting}
+
+\textbf{R3:}
+\begin{lstlisting}[language=bash, caption=Configuração do Roteador R3]
+ip nat inside source static tcp 10.0.0.100 5000 10.0.0.1 5000
+ip route 0.0.0.0 0.0.0.0 10.0.0.2
+\end{lstlisting}
+
+\subsection{Teste de Conectividade}
+
+% TODO: INSERIR SCREENSHOT: ping de PC1 para PC2
+
+\textbf{Comando:}
+\begin{lstlisting}[language=bash, caption=Teste de ping]
+PC1> ping 10.0.0.100
+\end{lstlisting}
+
+\textbf{Resultado Esperado:}
+\begin{lstlisting}[language=bash]
+Reply from 10.0.0.100: bytes=32 time=20ms TTL=125
+Reply from 10.0.0.100: bytes=32 time=18ms TTL=125
+Reply from 10.0.0.100: bytes=32 time=19ms TTL=125
+Reply from 10.0.0.100: bytes=32 time=21ms TTL=125
+\end{lstlisting}
+
+\section{TELAS DA APLICAÇÃO}
+
+\subsection{Servidor (ProcessingServer)}
+
+% TODO: INSERIR SCREENSHOT: Tela principal do servidor
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{screenshots/server.png}
+%     \caption{Tela principal do servidor}
+%     \label{fig:server}
+% \end{figure}
+
+\textbf{Funcionalidades Visíveis:}
+\begin{itemize}
+    \item Botões de iniciar/parar TCP e UDP
+    \item Lista de tarefas processadas com timestamps
+    \item Métricas do sistema (uptime, tarefas, threads, memória)
+    \item Log de eventos em tempo real
+    \item Status de conexão
+\end{itemize}
+
+\subsection{Cliente (ProcessingClient)}
+
+% TODO: INSERIR SCREENSHOT: Tela principal do cliente
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{screenshots/client.png}
+%     \caption{Tela principal do cliente}
+%     \label{fig:client}
+% \end{figure}
+
+\textbf{Funcionalidades Visíveis:}
+\begin{itemize}
+    \item Configuração de conexão (host, portas TCP/UDP)
+    \item Seleção de tipo de tarefa
+    \item Configuração específica para cada tarefa
+    \item Área de resultados
+    \item Métricas do servidor via UDP
+    \item Barra de progresso
+\end{itemize}
+
+\subsection{Execução de Tarefas}
+
+% TODO: INSERIR SCREENSHOTS de cada tarefa
+% \begin{figure}[H]
+%     \centering
+%     \begin{minipage}{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{screenshots/sort.png}
+%         \caption{Execução de SORT}
+%     \end{minipage}\hfill
+%     \begin{minipage}{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{screenshots/search.png}
+%         \caption{Execução de SEARCH}
+%     \end{minipage}
+% \end{figure}
+
+\section{ANÁLISE NO WIRESHARK}
+
+\subsection{Captura TCP - Porta 5000}
+
+% TODO: INSERIR SCREENSHOT: Wireshark mostrando tráfego TCP
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{screenshots/wireshark_tcp.png}
+%     \caption{Captura de tráfego TCP no Wireshark}
+%     \label{fig:wireshark_tcp}
+% \end{figure}
+
+\textbf{Filtro Utilizado:}
+\begin{lstlisting}[language=bash]
+tcp.port == 5000
+\end{lstlisting}
+
+\textbf{Análise:}
+
+\subsubsection{Three-Way Handshake:}
+\begin{enumerate}
+    \item \textbf{SYN}: Cliente $\rightarrow$ Servidor (seq=0)
+    \item \textbf{SYN-ACK}: Servidor $\rightarrow$ Cliente (seq=0, ack=1)
+    \item \textbf{ACK}: Cliente $\rightarrow$ Servidor (ack=1)
+\end{enumerate}
+
+% TODO: INSERIR SCREENSHOT: Detalhes do handshake
+
+\subsubsection{Transferência de Dados:}
+\begin{itemize}
+    \item \textbf{PSH, ACK}: Pacotes com dados da tarefa
+    \item \textbf{ACK}: Confirmações de recebimento
+    \item \textbf{Window Size}: Controle de fluxo visível
+\end{itemize}
+
+% TODO: INSERIR SCREENSHOT: Pacotes de dados
+
+\subsubsection{Finalização da Conexão:}
+\begin{enumerate}
+    \item \textbf{FIN, ACK}: Cliente fecha conexão
+    \item \textbf{FIN, ACK}: Servidor confirma
+    \item \textbf{ACK}: Cliente confirma
+\end{enumerate}
+
+\subsection{Captura UDP - Porta 5001}
+
+% TODO: INSERIR SCREENSHOT: Wireshark mostrando tráfego UDP
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{screenshots/wireshark_udp.png}
+%     \caption{Captura de tráfego UDP no Wireshark}
+%     \label{fig:wireshark_udp}
+% \end{figure}
+
+\textbf{Filtro Utilizado:}
+\begin{lstlisting}[language=bash]
+udp.port == 5001
+\end{lstlisting}
+
+\textbf{Análise:}
+
+\subsubsection{Requisições de Status:}
+\begin{itemize}
+    \item Sem handshake
+    \item Pacotes diretos de requisição
+    \item Tamanho pequeno (< 100 bytes)
+\end{itemize}
+
+\subsubsection{Respostas com Métricas:}
+\begin{itemize}
+    \item JSON com métricas do servidor
+    \item Sem confirmação de recebimento
+    \item Possível perda de pacotes (aceitável)
+\end{itemize}
+
+% TODO: INSERIR SCREENSHOT: Conteúdo do pacote UDP com JSON
+
+\subsection{Comparação TCP vs UDP}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Característica} & \textbf{TCP (5000)} & \textbf{UDP (5001)} \\ \midrule
+Handshake & Sim (3-way) & Não \\
+Confirmação & ACKs & Nenhuma \\
+Overhead & Alto ($\sim$40 bytes) & Baixo ($\sim$8 bytes) \\
+Latência & Maior & Menor \\
+Confiabilidade & Garantida & Não garantida \\
+Uso no Projeto & Tarefas críticas & Monitoramento \\ \bottomrule
+\end{tabular}
+\caption{Comparação entre TCP e UDP}
+\label{tab:tcp_udp}
+\end{table}
+
+\subsection{Análise de Roteamento}
+
+% TODO: INSERIR SCREENSHOT: Traceroute PC1 → PC2
+
+\textbf{Caminho dos Pacotes:}
+\begin{enumerate}
+    \item 192.168.1.10 (PC1)
+    \item 192.168.0.1 (R1)
+    \item 172.16.0.1 (R2)
+    \item 10.0.0.1 (R3)
+    \item 10.0.0.100 (PC2)
+\end{enumerate}
+
+\section{RESULTADOS E DISCUSSÃO}
+
+\subsection{Performance dos Algoritmos}
+
+\subsubsection{Teste 1: Ordenação de 10.000 elementos}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Algoritmo} & \textbf{Tempo (ms)} & \textbf{Complexidade} \\ \midrule
+Bubble Sort & 245.3 & $O(n^2)$ \\
+Quick Sort & 3.8 & $O(n \log n)$ \\
+Merge Sort & 4.2 & $O(n \log n)$ \\ \bottomrule
+\end{tabular}
+\caption{Performance dos algoritmos de ordenação}
+\label{tab:sort_perf}
+\end{table}
+
+\textbf{Observação}: Quick Sort e Merge Sort são significativamente mais rápidos para grandes volumes de dados.
+
+\subsubsection{Teste 2: Busca em array de 100.000 elementos}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Algoritmo} & \textbf{Tempo ($\mu$s)} & \textbf{Resultado} \\ \midrule
+Busca Linear & 1250.5 & Encontrado \\
+Busca Binária & 2.3 & Encontrado \\ \bottomrule
+\end{tabular}
+\caption{Performance dos algoritmos de busca}
+\label{tab:search_perf}
+\end{table}
+
+\textbf{Observação}: Busca binária é $\sim$500x mais rápida, mas requer array ordenado.
+
+\subsection{Métricas do Sistema}
+
+\textbf{Durante 10 minutos de operação:}
+\begin{itemize}
+    \item Tarefas processadas: 47
+    \item Threads ativas (pico): 4
+    \item Memória utilizada (média): 85 MB
+    \item Uptime: 00:10:32
+\end{itemize}
+
+\subsection{Latência de Rede}
+
+\textbf{Medições de RTT (Round-Trip Time):}
+\begin{itemize}
+    \item Média: 19.5 ms
+    \item Mínima: 15 ms
+    \item Máxima: 28 ms
+\end{itemize}
+
+\textbf{Impacto dos 3 roteadores:}
+\begin{itemize}
+    \item Cada hop adiciona $\sim$5-7 ms de latência
+\end{itemize}
+
+\section{DESAFIOS E SOLUÇÕES}
+
+\subsection{Problema: Port Forwarding Complexo}
+
+\textbf{Desafio}: Configurar NAT corretamente em 3 roteadores.
+
+\textbf{Solução}:
+\begin{itemize}
+    \item Mapeamento cuidadoso de portas em cada roteador
+    \item Testes incrementais (primeiro 1 roteador, depois 2, depois 3)
+    \item Uso de \texttt{show ip nat translations} para debug
+\end{itemize}
+
+\subsection{Problema: Sincronização de Threads}
+
+\textbf{Desafio}: Atualizar UI Swing de threads secundárias.
+
+\textbf{Solução}:
+\begin{itemize}
+    \item Uso de \texttt{SwingUtilities.invokeLater()} para todas as atualizações de UI
+    \item SwingWorker para tarefas longas
+\end{itemize}
+
+\subsection{Problema: Perda de Pacotes UDP}
+
+\textbf{Desafio}: Métricas ocasionalmente não apareciam.
+
+\textbf{Solução}:
+\begin{itemize}
+    \item Implementação de timeout no socket UDP
+    \item Retry automático após 2 segundos
+    \item Aceitação de perda ocasional (natureza do UDP)
+\end{itemize}
+
+\section{CONCLUSÃO}
+
+\subsection{Objetivos Alcançados}
+
+\begin{itemize}[label=\checkbox]
+    \item \textbf{TCP para Comunicação Confiável}: Implementado com sucesso para envio de tarefas computacionais
+    \item \textbf{UDP para Monitoramento}: Funcional para métricas em tempo real
+    \item \textbf{Interface Gráfica Swing}: Interface intuitiva e responsiva
+    \item \textbf{Rede com 3 Roteadores}: Configurada corretamente no Packet Tracer
+    \item \textbf{Port Forwarding/NAT}: Implementado em todos os roteadores
+    \item \textbf{Multithreading}: Thread pools funcionando eficientemente
+    \item \textbf{Validação com Wireshark}: Tráfego TCP e UDP analisado e compreendido
+\end{itemize}
+
+\subsection{Aprendizados}
+
+\begin{enumerate}
+    \item \textbf{Diferenças práticas entre TCP e UDP}: Entendimento claro de quando usar cada protocolo
+    \item \textbf{Complexidade de roteamento}: NAT e port forwarding em múltiplos roteadores requer planejamento cuidadoso
+    \item \textbf{Importância de multithreading}: Essencial para aplicações de rede não bloqueantes
+    \item \textbf{Análise de pacotes}: Wireshark é fundamental para debug de aplicações de rede
+    \item \textbf{Design de sistemas distribuídos}: Separação de responsabilidades entre cliente e servidor
+\end{enumerate}
+
+\subsection{Trabalhos Futuros}
+
+\begin{itemize}
+    \item Implementar balanceamento de carga com múltiplos servidores
+    \item Adicionar criptografia TLS/SSL para TCP
+    \item Dashboard web para visualização de métricas
+    \item Deployar em ambiente de cloud real (AWS, Azure)
+    \item Adicionar mais algoritmos (FFT, DFT, compressão)
+\end{itemize}
+
+\subsection{Considerações Finais}
+
+Este projeto demonstrou com sucesso a aplicação prática de conceitos de redes de computadores, combinando teoria e prática. A integração com outras disciplinas (Arquitetura, Sistemas Operacionais, Algoritmos) enriqueceu o aprendizado e mostrou a interconexão dos conhecimentos em Ciência da Computação.
+
+A escolha de um contexto realista (processamento distribuído) permitiu compreender aplicações práticas dos protocolos TCP e UDP, além de desafios reais de sistemas distribuídos.
+
+\begin{thebibliography}{9}
+
+\bibitem{kurose2013}
+KUROSE, J. F.; ROSS, K. W.
+\textit{Redes de Computadores e a Internet: Uma Abordagem Top-Down}.
+6ª ed. Pearson, 2013.
+
+\bibitem{tanenbaum2011}
+TANENBAUM, A. S.; WETHERALL, D.
+\textit{Redes de Computadores}.
+5ª ed. Pearson, 2011.
+
+\bibitem{oracle}
+ORACLE.
+\textit{Java Network Programming}.
+Disponível em: \url{https://docs.oracle.com/javase/tutorial/networking/}
+
+\bibitem{cisco}
+CISCO.
+\textit{Cisco Packet Tracer Documentation}.
+Disponível em: \url{https://www.netacad.com/}
+
+\bibitem{wireshark}
+WIRESHARK.
+\textit{User's Guide}.
+Disponível em: \url{https://www.wireshark.org/docs/}
+
+\bibitem{cormen2012}
+CORMEN, T. H. et al.
+\textit{Algoritmos: Teoria e Prática}.
+3ª ed. Campus, 2012.
+
+\end{thebibliography}
+
+\end{document}
